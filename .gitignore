@@ -1,0 +1,6 @@
+data
+build
+gradle
+.idea
+.gradle
+.DS_Store
