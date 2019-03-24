@@ -42,6 +42,10 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 configure<KtlintExtension> {
     outputToConsole.set(true)
     coloredOutput.set(true)
@@ -52,7 +56,7 @@ configure<GithookExtension> {
     githook {
         hooks {
             create("pre-push") {
-                this.task = "ktlintMainSourceSetCheck"
+                task = "build"
             }
         }
     }
