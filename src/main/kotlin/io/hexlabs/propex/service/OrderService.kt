@@ -9,7 +9,7 @@ interface OrderService {
     fun listOrders(): List<Order>
 }
 
-class ConnectedOrderService(val table: String, val client: AmazonDynamoDB) : OrderService{
+class ConnectedOrderService(val table: String, val client: AmazonDynamoDB) : OrderService {
     override fun listOrders(): List<Order> {
         return DynamoDB(client).getTable(table).scan().groupBy { it.getString("order") }.map { (order, items) ->
                 val dateTime = items.firstOrNull()?.getLong("dateTime") ?: 0

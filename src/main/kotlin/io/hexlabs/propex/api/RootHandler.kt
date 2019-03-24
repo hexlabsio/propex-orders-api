@@ -4,12 +4,11 @@ import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
-import com.amazonaws.services.dynamodbv2.document.Item
-import com.amazonaws.services.dynamodbv2.document.ScanFilter
-import com.amazonaws.services.dynamodbv2.document.TableWriteItems
-import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
-import com.amazonaws.services.dynamodbv2.model.*
-import com.amazonaws.services.dynamodbv2.xspec.ScanExpressionSpec
+import com.amazonaws.services.dynamodbv2.model.AttributeDefinition
+import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
+import com.amazonaws.services.dynamodbv2.model.KeyType
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput
+import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType
 import io.hexlabs.propex.model.Order
 import io.hexlabs.propex.model.Product
 
@@ -21,13 +20,13 @@ fun main(args: Array<String>) {
 
 fun randomString(length: Int) = (0..length).map { '0' + (Math.random() * 9).toInt() }.joinToString(separator = "")
 
-fun randomOrders() = (0..10000).map { index -> Order(order = randomString(5), products = (0..10).map { Product(randomString(10), randomString(8)) }, dateTime =(Math.random()*1000).toLong()) }
+fun randomOrders() = (0..10000).map { index -> Order(order = randomString(5), products = (0..10).map { Product(randomString(10), randomString(8)) }, dateTime = (Math.random()*1000).toLong()) }
 
 fun deleteTable(name: String, client: AmazonDynamoDB) {
     client.deleteTable(name)
 }
 
-fun createTable(name: String, client: AmazonDynamoDB){
+fun createTable(name: String, client: AmazonDynamoDB) {
     try {
         println("Attempting to create table; please wait...")
         val table = DynamoDB(client).createTable(name,
@@ -43,7 +42,6 @@ fun createTable(name: String, client: AmazonDynamoDB){
         )
         table.waitForActive()
         System.out.println("Success.  Table status: " + table.description.tableStatus)
-
     } catch (e: Exception) {
         System.err.println(e.message)
     }
