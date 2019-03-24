@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    machine:
+      enabled: true
+    working_directory: ~/propex-orders-api
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - gradle-{{ checksum "build.gradle.kts" }}
+    - run:
+        name: Gradle Clean
+        command: ./gradlew clean
+    - run:
+        name: Gradle Build
+        command: ./gradlew build -DBUILD_NUM=$CIRCLE_BUILD_NUM
+    - save_cache:
+        paths:
+        - ~/.gradle
+        key: gradle-{{ checksum "build.gradle.kts" }}
