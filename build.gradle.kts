@@ -23,15 +23,22 @@ group = "io.hexlabs"
 val artifactId = "propex-orders-api"
 version = projectVersion
 
+val http4kVersion = "3.115.1"
+
 repositories {
     jcenter()
     mavenCentral()
 }
 
 dependencies {
-
     compile(kotlin("stdlib-jdk8"))
-    compile("com.amazonaws:aws-java-sdk-dynamodb:1.11.524")
+    compile(kotlin("reflect"))
+    compile("org.http4k:http4k-core:$http4kVersion")
+    compile("org.http4k:http4k-format-jackson:$http4kVersion")
+    compile("org.jetbrains.exposed:exposed:0.13.5")
+    runtime("org.postgresql:postgresql:42.2.5")
+    compile("org.apache.logging.log4j:log4j-slf4j-impl:2.9.0")
+
     testImplementation("io.mockk:mockk:1.9.2.kotlin12")
     testImplementation(group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version = "1.3.21")
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "1.3.21")

@@ -1,48 +1,35 @@
 package io.hexlabs.propex.api
-
-import com.amazonaws.client.builder.AwsClientBuilder
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
-import com.amazonaws.services.dynamodbv2.document.DynamoDB
-import com.amazonaws.services.dynamodbv2.model.AttributeDefinition
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
-import com.amazonaws.services.dynamodbv2.model.KeyType
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput
-import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType
-import io.hexlabs.propex.model.Order
-import io.hexlabs.propex.model.Product
+import io.hexlabs.propex.model.Orders
+import io.hexlabs.propex.model.Products
+import io.hexlabs.propex.service.ConnectedOrderService
+import io.hexlabs.propex.service.OrderService
+import org.http4k.core.then
+import org.http4k.routing.routes
+import org.http4k.server.SunHttp
+import org.http4k.server.asServer
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Transaction
 
 fun main(args: Array<String>) {
-    val client = AmazonDynamoDBClientBuilder.standard()
-        .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "eu-west-1"))
-        .build()
-}
-
-fun randomString(length: Int) = (0..length).map { '0' + (Math.random() * 9).toInt() }.joinToString(separator = "")
-
-fun randomOrders() = (0..10000).map { index -> Order(order = randomString(5), products = (0..10).map { Product(randomString(10), randomString(8)) }, dateTime = (Math.random()*1000).toLong()) }
-
-fun deleteTable(name: String, client: AmazonDynamoDB) {
-    client.deleteTable(name)
-}
-
-fun createTable(name: String, client: AmazonDynamoDB) {
-    try {
-        println("Attempting to create table; please wait...")
-        val table = DynamoDB(client).createTable(name,
-            listOf(
-                KeySchemaElement("order", KeyType.HASH),
-                KeySchemaElement("serial", KeyType.RANGE)
-            ),
-            listOf(
-                AttributeDefinition("order", ScalarAttributeType.S),
-                AttributeDefinition("serial", ScalarAttributeType.S)
-            ),
-            ProvisionedThroughput(5L, 5L)
-        )
-        table.waitForActive()
-        System.out.println("Success.  Table status: " + table.description.tableStatus)
-    } catch (e: Exception) {
-        System.err.println(e.message)
+    Database.connect("jdbc:postgresql://localhost/propex", "org.postgresql.Driver", "postgres", "postgres")
+    org.jetbrains.exposed.sql.transactions.transaction {
+        createTables()
     }
+    Root().apiRoutes().asServer(SunHttp(8080)).start()
+    println("Server started on port 8080")
+}
+
+class Root(
+    val orderService: OrderService = ConnectedOrderService()
+) : Api {
+    private val orderApi = OrderApi(orderService)
+    override fun apiRoutes() =
+        Filters.TRACING
+        .then(Filters.CATCH_ALL)
+        .then(routes(orderApi.apiRoutes()))
+}
+
+fun Transaction.createTables() {
+    SchemaUtils.create(Orders, Products)
 }
