@@ -44,8 +44,8 @@ class ConnectedOrderService : OrderService {
                 val productModel = it[Products.MODEL]
                 val productSerial = it[Products.SERIAL]
                 Pair(
-                    Orders(orderIdentifier, orderNumber, orderDateTime.millis / 1000L),
-                    Products(productIdentifier, orderIdentifier, productSerial, productModel)
+                    Orders(orderIdentifier, orderNumber, orderDateTime.millis),
+                    Products(productIdentifier, orderIdentifier, productSerial ?: "", productModel ?: "")
                 )
             }.groupBy { it.first.identifier }.map { (_, rows) ->
                 val order = rows.first().first

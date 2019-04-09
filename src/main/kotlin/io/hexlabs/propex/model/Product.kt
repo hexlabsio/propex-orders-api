@@ -9,7 +9,7 @@ data class Products(val identifier: String, val orderIdentifier: String, val ser
     companion object : Table("product") {
         val IDENTIFIER = varchar("identifier", 36).primaryKey()
         val ORDER_IDENTIFIER = varchar("order", 36).primaryKey() references Orders.IDENTIFIER
-        val SERIAL = Orders.varchar("serial", length = 50).index()
-        val MODEL = Orders.varchar("model", length = 50)
+        val SERIAL = varchar("serial", length = 50).index().nullable()
+        val MODEL = varchar("model", length = 50).nullable()
     }
 }

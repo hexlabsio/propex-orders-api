@@ -3,13 +3,26 @@ import io.hexlabs.propex.model.Orders
 import io.hexlabs.propex.model.Products
 import io.hexlabs.propex.service.ConnectedOrderService
 import io.hexlabs.propex.service.OrderService
+import org.http4k.core.HttpHandler
+import org.http4k.core.Response
+import org.http4k.core.Status.Companion.OK
 import org.http4k.core.then
+import org.http4k.filter.CorsPolicy
+import org.http4k.filter.ServerFilters
 import org.http4k.routing.routes
 import org.http4k.server.SunHttp
 import org.http4k.server.asServer
+import org.http4k.serverless.AppLoader
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Transaction
+
+object RootApi : AppLoader {
+    override fun invoke(environment: Map<String, String>): HttpHandler = Filters.TRACING
+        .then(Filters.CATCH_ALL)
+        .then(ServerFilters.Cors(CorsPolicy.UnsafeGlobalPermissive))
+        .then { Response(OK).body("All good") }
+}
 
 fun main(args: Array<String>) {
     Database.connect("jdbc:postgresql://localhost/propex", "org.postgresql.Driver", "postgres", "postgres")

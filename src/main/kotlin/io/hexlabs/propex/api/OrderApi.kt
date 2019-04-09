@@ -26,7 +26,15 @@ class OrderApi(val orderService: OrderService) : Api {
 
     private fun collectionOf(orders: List<Order>): ResourceCollection<OrderResource> {
         return ResourceCollection("/orders", "", emptyList(), orders.map {
-            OrderResource("/orders/${it.order}", "", emptyList(), it.order, it.products, it.dateTime)
+            OrderResource(
+                id = "/orders/${it.identifier}",
+                context = "",
+                operations = emptyList(),
+                identifier = it.identifier,
+                order = it.order,
+                dateTime = it.dateTime,
+                products = it.products
+            )
         })
     }
 
@@ -54,6 +62,7 @@ data class OrderResource(
     override val id: String,
     override val context: String,
     override val operations: List<ApiOperation>,
+    val identifier: String,
     val order: String,
     val products: List<Product>,
     val dateTime: Long

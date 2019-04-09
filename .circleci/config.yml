@@ -19,3 +19,16 @@ jobs:
         paths:
         - ~/.gradle
         key: gradle-{{ checksum "build.gradle.kts" }}
+    - run:
+        name: Install KloudFormation
+        command: curl -sSL install.kloudformation.hexlabs.io | bash -s -- -local
+    - restore_cache:
+        keys:
+        - kloudformation-{{ checksum "kloudformation.sh" }}
+    - run:
+        name: Deploy Stack
+        command:  ./kloudformation.sh -m serverless@0.1.4 deploy -stack-name propex-test-stack -location build/libs/propex-orders-api-0.1-SNAPSHOT-uber.jar -bucket hexlabs-deployments -key PROPEX.zip
+    - save_cache:
+        paths:
+        - ~/.kloudformation
+        key: kloudformation-{{ checksum "kloudformation.sh" }}
