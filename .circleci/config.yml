@@ -27,7 +27,7 @@ jobs:
         - kloudformation-{{ checksum "kloudformation.sh" }}
     - run:
         name: Deploy Stack
-        command:  ./kloudformation.sh -m serverless@0.1.4 deploy -stack-name propex-test-stack -location build/libs/propex-orders-api-0.1-SNAPSHOT-uber.jar -bucket hexlabs-deployments -key PROPEX.zip
+        command:  ./kloudformation.sh -m serverless@0.1.4 deploy -stack-name propex-test-stack -location build/libs/propex-orders-api-0.1.$CIRCLE_BUILD_NUM-uber.jar -bucket hexlabs-deployments -key PROPEX.zip
     - save_cache:
         paths:
         - ~/.kloudformation
