@@ -3,6 +3,7 @@ import io.hexlabs.kloudformation.module.serverless.serverless
 import io.kloudformation.KloudFormation
 import io.kloudformation.StackBuilder
 import io.kloudformation.json
+import io.kloudformation.property.aws.lambda.function.code
 
 class Stack : StackBuilder {
     override fun KloudFormation.create(args: List<String>) {
@@ -19,6 +20,21 @@ class Stack : StackBuilder {
                 }
                 http(cors = true) {
                     path("orders") { Method.GET() }
+                }
+            }
+            serverlessFunction(
+                functionId = "propex-api-schema",
+                codeLocationKey = +"",
+                handler = +"index.go",
+                runtime = +"nodejs8.10"
+            ) {
+                lambdaFunction {
+                    timeout(30)
+                    code { zipFile("""
+                        exports.go = (event, context, callback) => {
+                            console.log("HELLO WORLD")
+                        }
+                    """.trimIndent()) }
                 }
             }
         }
