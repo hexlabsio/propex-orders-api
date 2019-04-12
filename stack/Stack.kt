@@ -32,7 +32,7 @@ class Stack : StackBuilder {
                         }
                     """.trimIndent()
             ) {
-                lambdaFunction{
+                lambdaFunction {
                     timeout(30)
                 }
             }
