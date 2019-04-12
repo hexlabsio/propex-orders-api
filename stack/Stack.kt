@@ -22,19 +22,18 @@ class Stack : StackBuilder {
                     path("orders") { Method.GET() }
                 }
             }
-            serverlessFunction(
+            serverlessFunctionWithCode(
                 functionId = "propex-api-schema",
-                codeLocationKey = +"",
                 handler = +"index.go",
-                runtime = +"nodejs8.10"
-            ) {
-                lambdaFunction {
-                    timeout(30)
-                    code { zipFile("""
+                runtime = +"nodejs8.10",
+                code = +"""
                         exports.go = (event, context, callback) => {
                             console.log("HELLO WORLD")
                         }
-                    """.trimIndent()) }
+                    """.trimIndent()
+            ) {
+                lambdaFunction{
+                    timeout(30)
                 }
             }
         }
