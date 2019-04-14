@@ -62,6 +62,8 @@ dependencies {
     compile("org.jetbrains.exposed:exposed:0.13.5")
     runtime("org.postgresql:postgresql:42.2.5")
     compile("org.apache.logging.log4j:log4j-slf4j-impl:2.9.0")
+    compile("org.flywaydb:flyway-core:5.2.4")
+
     testImplementation("io.kloudformation:kloudformation:0.1.119")
     testImplementation("io.hexlabs:kloudformation-serverless-module:0.1.7")
 

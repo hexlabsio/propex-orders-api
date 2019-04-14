@@ -1,7 +1,9 @@
 package io.hexlabs.propex.api
 import org.http4k.core.Filter
+import org.http4k.core.Method
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.filter.CorsPolicy
 import org.http4k.filter.ServerFilters
 
 object Filters {
@@ -17,4 +19,8 @@ object Filters {
             Response(Status.INTERNAL_SERVER_ERROR)
         }
     } }
+    val CORS = ServerFilters.Cors(CorsPolicy(
+        origins = listOf("*"),
+        headers = listOf("Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key", "X-Amz-Security-Token", "X-Amz-User-Agent"),
+        methods = listOf(Method.GET, Method.POST)))
 }
