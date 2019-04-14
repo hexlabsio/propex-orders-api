@@ -33,7 +33,7 @@ jobs:
         - kloudformation-{{ checksum "kloudformation.sh" }}
     - run:
         name: Deploy Stack
-        command:  ./kloudformation.sh -m serverless@0.1.8 deploy -stack-name propex-test-stack -location build/libs/propex-orders-api-0.1.$CIRCLE_BUILD_NUM-uber.jar -bucket hexlabs-deployments -output output.properties
+        command:  ./kloudformation.sh -m serverless@0.1.9 deploy -stack-name propex-test-stack -location build/libs/propex-orders-api-0.1.$CIRCLE_BUILD_NUM-uber.jar -bucket hexlabs-deployments -output output.properties
 
     - store_artifacts:
         path: template.yml
