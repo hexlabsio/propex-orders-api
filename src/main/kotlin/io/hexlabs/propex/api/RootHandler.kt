@@ -1,6 +1,8 @@
 package io.hexlabs.propex.api
 import io.hexlabs.propex.service.ConnectedOrderService
+import io.hexlabs.propex.service.ConnectedProductService
 import io.hexlabs.propex.service.OrderService
+import io.hexlabs.propex.service.ProductService
 import org.http4k.core.HttpHandler
 import org.http4k.core.then
 import org.http4k.routing.routes
@@ -19,14 +21,19 @@ object RootApi : AppLoader {
 }
 
 class Root(
-    val orderService: OrderService = ConnectedOrderService()
+    orderService: OrderService = ConnectedOrderService(),
+    productService: ProductService = ConnectedProductService()
 ) : Api {
     private val orderApi = OrderApi(orderService)
+    private val productApi = ProductApi(productService)
     override fun apiRoutes() =
         Filters.TRACING
         .then(Filters.CATCH_ALL)
         .then(Filters.CORS)
-        .then(routes(orderApi.apiRoutes()))
+        .then(routes(
+            orderApi.apiRoutes(),
+            productApi.apiRoutes()
+        ))
 
     companion object {
         init {

@@ -12,31 +12,45 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.CREATED
+import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.format.Jackson.auto
+import org.http4k.lens.Path
+import org.http4k.lens.string
 import java.util.UUID
 
 class OrderApi(val orderService: OrderService) : Api {
     private val extractCreateOrdersFrom = Body.auto<CreateOrders>().toLens()
     private val extractOrdersFrom = Body.auto<ResourceCollection<OrderResource>>().toLens()
-    private val bodyWith = { orders: ResourceCollection<OrderResource> -> { response: Response -> response.with(extractOrdersFrom of orders) } }
+    private val extractOrderFrom = Body.auto<OrderResource>().toLens()
+    private val orderIdFrom = Path.string().of(name = "orderId")
+    private fun bodyWith(orders: ResourceCollection<OrderResource>) = { response: Response -> response.with(extractOrdersFrom of orders) }
+    private fun bodyWith(order: OrderResource) = { response: Response -> response.with(extractOrderFrom of order) }
 
     private fun collectionOf(orders: List<Order>): ResourceCollection<OrderResource> {
-        return ResourceCollection("/orders", "", emptyList(), orders.map {
-            OrderResource(
-                id = "/orders/${it.identifier}",
-                context = "",
-                operations = emptyList(),
-                identifier = it.identifier,
-                order = it.order,
-                dateTime = it.dateTime,
-                products = it.products
-            )
-        })
+        return ResourceCollection("/orders", "", member = orders.map {
+            orderResourceFrom(it)
+        }, operations = listOf(
+            ApiOperation(Method.GET.toString()),
+            ApiOperation(Method.POST.toString())
+        ))
     }
+    private fun orderResourceFrom(order: Order) = OrderResource(
+        id = "/orders/${order.identifier}",
+        context = "",
+        operations = listOf(
+            ApiOperation(Method.GET.toString()),
+            ApiOperation(Method.POST.toString()),
+            ApiOperation(Method.DELETE.toString())
+        ),
+        identifier = order.identifier,
+        order = order.order,
+        dateTime = order.dateTime,
+        products = order.products
+    )
 
     private fun batchInsert(createOrders: CreateOrders) {
         val orders = createOrders.orders.map { order ->
@@ -49,10 +63,21 @@ class OrderApi(val orderService: OrderService) : Api {
 
     override fun apiRoutes() = routes(
         "/orders" bind routes(
-            Method.GET to { _: Request -> Response(OK).with(bodyWith(collectionOf(orderService.listOrders()))) },
+            Method.GET to { _: Request -> Response(OK).with(bodyWith(collectionOf(orderService.readAll()))) },
             Method.POST to { request: Request ->
                 batchInsert(extractCreateOrdersFrom(request))
                 Response(CREATED)
+            }
+        ),
+        "/orders/{orderId}" bind routes(
+            Method.GET to { request: Request ->
+                orderService.read(orderIdFrom(request))?.let {
+                    Response(OK).with(bodyWith(orderResourceFrom(it)))
+                } ?: Response(NOT_FOUND)
+            },
+            Method.DELETE to { request: Request ->
+                if(orderService.delete(orderIdFrom(request))) Response(OK)
+                else Response(NOT_FOUND)
             }
         )
     )
