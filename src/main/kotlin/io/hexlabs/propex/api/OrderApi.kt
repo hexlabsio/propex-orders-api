@@ -76,7 +76,7 @@ class OrderApi(val orderService: OrderService) : Api {
                 } ?: Response(NOT_FOUND)
             },
             Method.DELETE to { request: Request ->
-                if(orderService.delete(orderIdFrom(request))) Response(OK)
+                if (orderService.delete(orderIdFrom(request))) Response(OK)
                 else Response(NOT_FOUND)
             }
         )

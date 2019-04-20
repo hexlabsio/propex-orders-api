@@ -9,13 +9,13 @@ data class Product(val identifier: String, val serial: String?, val model: Strin
 
 fun Product.asRow(orderIdentifier: String) = ProductTable.ProductRow(identifier, orderIdentifier, model, serial)
 
-object ProductTable: Table("product") {
+object ProductTable : Table("product") {
     val IDENTIFIER = varchar("identifier", 36).primaryKey()
     val ORDER_IDENTIFIER = varchar("order", 36).primaryKey() references OrderTable.IDENTIFIER
     val SERIAL = varchar("serial", length = 50).index().nullable()
     val MODEL = varchar("model", length = 50).nullable()
 
-    data class ProductRow(val identifier: String, val orderIdentifier: String, val serial: String?, val model: String?){
+    data class ProductRow(val identifier: String, val orderIdentifier: String, val serial: String?, val model: String?) {
         companion object {
             fun from(resultRow: ResultRow) = ProductRow(
                 identifier = resultRow[IDENTIFIER],

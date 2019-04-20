@@ -29,12 +29,12 @@ fun ordersFrom(orderProductRows: List<Pair<OrderTable.OrderRow, ProductTable.Pro
         .map { (_, rows) -> orderFrom(rows.first().first, rows.map { productFrom(it.second) }) }
 }
 
-object OrderTable: Table("order") {
+object OrderTable : Table("order") {
     val IDENTIFIER = varchar("identifier", 36).primaryKey()
     val ORDER = varchar("order", length = 50).index()
     val DATE_TIME = datetime("dateTime")
 
-    data class OrderRow(val identifier: String, val order: String, val dateTime: DateTime){
+    data class OrderRow(val identifier: String, val order: String, val dateTime: DateTime) {
         companion object {
             fun from(resultRow: ResultRow) = OrderRow(
                 identifier = resultRow[IDENTIFIER],

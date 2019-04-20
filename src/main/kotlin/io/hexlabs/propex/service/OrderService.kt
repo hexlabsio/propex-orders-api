@@ -2,7 +2,6 @@ package io.hexlabs.propex.service
 
 import io.hexlabs.propex.model.Order
 import io.hexlabs.propex.model.OrderTable
-import io.hexlabs.propex.model.Product
 import io.hexlabs.propex.model.ProductTable
 import io.hexlabs.propex.model.insert
 import io.hexlabs.propex.model.orderFrom
@@ -15,7 +14,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 
-interface OrderService: CrudService<Order> {
+interface OrderService : CrudService<Order> {
     fun create(orders: List<Order>)
 }
 
@@ -59,7 +58,7 @@ class ConnectedOrderService : OrderService {
     }
 
     override fun update(identifier: String, item: Order) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented") // To change body of created functions use File | Settings | File Templates.
     }
 
     override fun delete(identifier: String): Boolean {
