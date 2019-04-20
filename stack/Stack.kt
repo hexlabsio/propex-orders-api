@@ -41,6 +41,7 @@ class Stack : StackBuilder {
                 lambdaFunction(defaultLambdaConfig)
                 http(cors = true) {
                     path("orders") { Method.GET(); Method.POST(); }
+                    path("products") { Method.GET(); Method.POST(); Method.DELETE(); }
                 }
             }
             serverlessFunction("propex-db-init", +codeLocation, +"io.hexlabs.propex.db.DbInit::handle", +"java8") {
