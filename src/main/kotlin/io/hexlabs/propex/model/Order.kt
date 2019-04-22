@@ -1,5 +1,6 @@
 package io.hexlabs.propex.model
 
+import io.hexlabs.propex.toUtcString
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -7,14 +8,14 @@ import org.joda.time.DateTime
 
 data class CreateOrders(val orders: List<CreateOrder>)
 
-data class CreateOrder(val order: String, val dateTime: Long, val products: List<CreateProduct>)
+data class CreateOrder(val order: String, val dateTime: String, val products: List<CreateProduct>)
 
-data class Order(val identifier: String, val order: String, val dateTime: Long, val products: List<Product>)
+data class Order(val identifier: String, val order: String, val dateTime: String, val products: List<Product>)
 
 fun orderFrom(orderRow: OrderTable.OrderRow, products: List<Product>) = Order(
     identifier = orderRow.identifier,
     order = orderRow.order,
-    dateTime = orderRow.dateTime.millis,
+    dateTime = orderRow.dateTime.toUtcString(),
     products = products
 )
 

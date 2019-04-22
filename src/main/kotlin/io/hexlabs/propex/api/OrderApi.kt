@@ -1,5 +1,6 @@
 package io.hexlabs.propex.api
 
+import io.hexlabs.propex.instantFrom
 import io.hexlabs.propex.model.ApiOperation
 import io.hexlabs.propex.model.CreateOrders
 import io.hexlabs.propex.model.Order
@@ -19,6 +20,7 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Path
+import org.http4k.lens.Query
 import org.http4k.lens.string
 import java.util.UUID
 
@@ -27,6 +29,8 @@ class OrderApi(val orderService: OrderService) : Api {
     private val extractOrdersFrom = Body.auto<ResourceCollection<OrderResource>>().toLens()
     private val extractOrderFrom = Body.auto<OrderResource>().toLens()
     private val orderIdFrom = Path.string().of(name = "orderId")
+    private val startDateFrom = Query.string().optional("startDate")
+    private val endDateFrom = Query.string().optional("endDate")
     private fun bodyWith(orders: ResourceCollection<OrderResource>) = { response: Response -> response.with(extractOrdersFrom of orders) }
     private fun bodyWith(order: OrderResource) = { response: Response -> response.with(extractOrderFrom of order) }
 
@@ -63,7 +67,11 @@ class OrderApi(val orderService: OrderService) : Api {
 
     override fun apiRoutes() = routes(
         "/orders" bind routes(
-            Method.GET to { _: Request -> Response(OK).with(bodyWith(collectionOf(orderService.readAll()))) },
+            Method.GET to { request: Request ->
+                Thread.sleep(20000)
+                val startDate = startDateFrom(request)?.let { instantFrom(it) }
+                val endDate = endDateFrom(request)?.let { instantFrom(it) }
+                Response(OK).with(bodyWith(collectionOf(orderService.readAll(startDate, endDate)))) },
             Method.POST to { request: Request ->
                 batchInsert(extractCreateOrdersFrom(request))
                 Response(CREATED)
@@ -90,5 +98,5 @@ data class OrderResource(
     val identifier: String,
     val order: String,
     val products: List<Product>,
-    val dateTime: Long
+    val dateTime: String
 ) : Resource(id, context, operations)
